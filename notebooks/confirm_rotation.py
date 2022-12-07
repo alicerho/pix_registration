@@ -1,6 +1,6 @@
 import numpy as np
 from pathlib import Path 
-from skimage import io,util,transform
+from skimage import io,util
 from nd2reader import ND2Reader
 
 def crop_center(path_i,path_o):
@@ -27,7 +27,7 @@ for path_camera in Path("data/2022-11-08_beads_equal_pixel_size").glob("camera*.
         path_camera,
         f"intermediate/center-crop_{path_camera.stem}.tif"
     )
-# 2022-1-09: It turns out that the quality of `2022-11-08_beads_equal_pixel_size` is not good enough. 
+# 2022-11-09: It turns out that the quality of `2022-11-08_beads_equal_pixel_size` is not good enough. 
 
 crop_center(
     "data/camera-TRITC_field-0_size-2048_zoom-1.nd2",
