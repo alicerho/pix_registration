@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import plotly.express as px
 from pathlib import Path
 from nd2reader import ND2Reader
-from skimage import util,io,measure
+from skimage import util,io,measure,transform
 
 
 # format images from nd2 to tif
@@ -157,7 +157,9 @@ df_coords_camera.rename(
     },
     inplace=True
 )
-df_coords_camera['z'] = df_coords_camera['z'] - df_coords_camera['z'].mean()
+for mode in ["masked","weighted","maxima"]:
+    for color in ["green","yellow","red"]:
+        df_coords_camera.loc[df_coords_camera["mode"].eq(mode)&df_coords_camera["color"].eq(color),'z'] = df_coords_camera.loc[df_coords_camera["mode"].eq(mode)&df_coords_camera["color"].eq(color),'z'] - df_coords_camera.loc[df_coords_camera["mode"].eq(mode)&df_coords_camera["color"].eq(color),'z'].mean()
 
 df_coords_spectral = df_coords.loc[:,["color","spectral_label","spectral_mode","spectral_z","spectral_y","spectral_x"]]
 df_coords_spectral["detector"] = "spectral"
@@ -171,31 +173,108 @@ df_coords_spectral.rename(
     },
     inplace=True
 )
-df_coords_spectral['z'] = df_coords_spectral['z'] - df_coords_spectral['z'].mean()
+for mode in ["masked","weighted","maxima"]:
+    for color in ["green","yellow","red"]:
+        df_coords_spectral.loc[df_coords_spectral['mode'].eq(mode)&df_coords_spectral['color'].eq(color),'z'] = df_coords_spectral.loc[df_coords_spectral['mode'].eq(mode)&df_coords_spectral['color'].eq(color),'z'] - df_coords_spectral.loc[df_coords_spectral['mode'].eq(mode)&df_coords_spectral['color'].eq(color),'z'].mean()
 df_coords_spectral['y'] = df_coords_spectral['y'] + 766
 df_coords_spectral['x'] = df_coords_spectral['x'] + 768
 
 df_coords_new = pd.concat([df_coords_camera,df_coords_spectral],ignore_index=True)
 
-for color in ["green","yellow","red"]:
-    fig = px.scatter_3d(
-        data_frame=df_coords_new[
-            df_coords_new["color"].eq(color) & 
-            df_coords_new["mode"].eq("weighted")
-        ],
-        x="x",y="y",z="z",color="detector",
-        title=color
-    )
-    fig.show()
+for mode in ["masked","weighted","maxima"]:
+    for color in ["green","yellow","red"]:
+        fig = px.scatter_3d(
+            data_frame=df_coords_new[
+                df_coords_new["color"].eq(color) & 
+                df_coords_new["mode"].eq("weighted")
+            ],
+            x="x",y="y",z="z",color="detector",
+            title=f"{mode}; {color}"
+        )
+        fig.write_html(f"intermediate/visual/3d_{mode}_{color}.html")
 
-for color in ["green","yellow","red"]:
-    fig = px.scatter(
-        data_frame=df_coords_new[
-            df_coords_new["color"].eq(color) & 
-            df_coords_new["mode"].eq("weighted")
-        ],
-        x="x",y="y",color="detector",
-        title=color
-    )
-    fig.show()
+for mode in ["masked","weighted","maxima"]:
+    for color in ["green","yellow","red"]:
+        fig = px.scatter(
+            data_frame=df_coords_new[
+                df_coords_new["color"].eq(color) & 
+                df_coords_new["mode"].eq("weighted")
+            ],
+            x="x",y="y",color="detector",
+            title=f"{mode}; {color}"
+        )
+        fig.update_yaxes(
+            scaleanchor = "x",
+            scaleratio = 1,
+        ) # keep the aspect ratio of both axes.
+        fig.write_html(f"intermediate/visual/2d_{mode}_{color}.html")
+# It looks 2d images are similar across different modes,
+# and the colors make a difference, and the difference is consistent.
+# So we needn't consider 3d transformations.
+
+
+# fit the transformation
+for mode in ["masked","weighted","maxima"]:
+    for color in ["green","yellow","red"]:
+        df_subset = df_coords.loc[df_coords["color"].eq(color) & df_coords["camera_mode"].eq(mode)]
+        yx_camera   = df_subset[["camera_y",  "camera_x"]].to_numpy()
+        yx_spectral = df_subset[["spectral_y","spectral_x"]].to_numpy()
+        for transf_type in ["EuclideanTransform","SimilarityTransform","AffineTransform"]:
+            transf = getattr(transform,transf_type)()
+            success = transf.estimate(yx_camera,yx_spectral)
+            if success:
+                np.savetxt(f"intermediate/transforms/camera2spectral_{color}_{mode}_{transf_type}.txt",transf.params)
+            success = transf.estimate(yx_spectral,yx_camera)
+            if success:
+                np.savetxt(f"intermediate/transforms/spectral2camera_{color}_{mode}_{transf_type}.txt",transf.params)
+
+
+# backtest the transform parameters
+list_coords_predict = [df_coords_new]
+for mode in ["masked","weighted","maxima"]:
+    for color in ["green","yellow","red"]:
+        df_subset = df_coords.loc[df_coords["color"].eq(color) & df_coords["camera_mode"].eq(mode)]
+        yx_camera   = df_subset[["camera_y",  "camera_x"]].to_numpy()
+        yx_spectral = df_subset[["spectral_y","spectral_x"]].to_numpy()
+        for transf_type in ["EuclideanTransform","SimilarityTransform","AffineTransform"]:
+            matrix_spectral2camera = np.loadtxt(f"intermediate/transforms/spectral2camera_{color}_{mode}_{transf_type}.txt")
+            a_spectral2camera = matrix_spectral2camera[:2 ,:2]
+            b_spectral2camera = matrix_spectral2camera[:-1,-1].reshape((2,-1))
+            predict_camera = np.transpose(b_spectral2camera + a_spectral2camera @ yx_spectral.transpose())
+            list_coords_predict.append(pd.DataFrame({
+                "color": color,
+                "label": df_coords_new.loc[
+                            df_coords_new["color"].eq(color) & 
+                            df_coords_new["mode"].eq(mode) & 
+                            df_coords_new["detector"].eq("camera"),
+                            "label"
+                         ],
+                "mode": mode,
+                "z": 0.,
+                'y': predict_camera[:,0],
+                'x': predict_camera[:,1],
+                "detector": "predicted_camera"
+            }))
+
+            matrix_camera2spectral = np.loadtxt(f"intermediate/transforms/camera2spectral_{color}_{mode}_{transf_type}.txt")
+            a_camera2spectral = matrix_camera2spectral[:2 ,:2]
+            b_camera2spectral = matrix_camera2spectral[:-1,-1].reshape((2,-1))
+            predict_spectral = np.transpose(b_camera2spectral + a_camera2spectral @ yx_camera.transpose())
+            list_coords_predict.append(pd.DataFrame({
+                "color": color,
+                "label": df_coords_new.loc[
+                            df_coords_new["color"].eq(color) & 
+                            df_coords_new["mode"].eq(mode) & 
+                            df_coords_new["detector"].eq("spectral"),
+                            "label"
+                         ],
+                "mode": mode,
+                "z": 0.,
+                'y': predict_spectral[:,0] + 766,
+                'x': predict_spectral[:,1] + 768,
+                "detector": "predicted_spectral"
+            }))
+df_coords_prediction = pd.concat(list_coords_predict,ignore_index=True)
+
+
 
