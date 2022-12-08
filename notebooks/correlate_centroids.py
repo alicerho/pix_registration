@@ -6,6 +6,8 @@
 
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+import plotly.express as px
 from pathlib import Path
 from nd2reader import ND2Reader
 from skimage import util,io,measure
@@ -58,7 +60,7 @@ for path_binary in Path("intermediate/segment").glob("*.tiff"):
 dict_images = {
     "green":  {
         "camera": {
-            "intensity": "intermediate/tiff/camera-DAPI_zStack_Beads-100nm_field-0.tif",
+            "intensity": "intermediate/tiff/camera-FITC_zStack_Beads-100nm_field-0.tif",
             "label":     "intermediate/label/camera-FITC_zStack_Beads-100nm_field-0_label.tif"
         },
         "spectral": {
@@ -113,9 +115,9 @@ for color in ["green","yellow","red"]:
                                          ==regionprops_camera[label_camera-1].max_intensity)
                                  ))))
 
-        centroid_spectral_masked = regionprops_camera[label_spectral-1].centroid
-        centroid_spectral_weight = regionprops_camera[label_spectral-1].weighted_centroid
-        centroid_spectral_maxima = (np.array(regionprops_camera[label_spectral-1].bbox[:3])
+        centroid_spectral_masked = regionprops_spectral[label_spectral-1].centroid
+        centroid_spectral_weight = regionprops_spectral[label_spectral-1].weighted_centroid
+        centroid_spectral_maxima = (np.array(regionprops_spectral[label_spectral-1].bbox[:3])
                                    +np.array(tuple(map(np.mean,
                                        np.where(
                                            regionprops_spectral[label_spectral-1].intensity_image
@@ -136,3 +138,64 @@ for color in ["green","yellow","red"]:
         }))
 df_coords = pd.concat(list_coords,ignore_index=True)
 df_coords.to_csv("intermediate/coordinations.csv",index=False)
+
+
+# visualize the coordinates
+
+df_coords = pd.read_csv("intermediate/coordinations.csv")
+df_coords.sort_values(["camera_mode","color","spectral_label","camera_label"],inplace=True)
+
+df_coords_camera   = df_coords.loc[:,["color","camera_label","camera_mode","camera_z","camera_y","camera_x"]]
+df_coords_camera["detector"] = "camera"
+df_coords_camera.rename(
+    columns={
+        "camera_label": "label",
+        "camera_mode":  "mode",
+        "camera_z":     "z",
+        "camera_y":     "y",
+        "camera_x":     "x"
+    },
+    inplace=True
+)
+df_coords_camera['z'] = df_coords_camera['z'] - df_coords_camera['z'].mean()
+
+df_coords_spectral = df_coords.loc[:,["color","spectral_label","spectral_mode","spectral_z","spectral_y","spectral_x"]]
+df_coords_spectral["detector"] = "spectral"
+df_coords_spectral.rename(
+    columns={
+        "spectral_label": "label",
+        "spectral_mode":  "mode",
+        "spectral_z":     "z",
+        "spectral_y":     "y",
+        "spectral_x":     "x"
+    },
+    inplace=True
+)
+df_coords_spectral['z'] = df_coords_spectral['z'] - df_coords_spectral['z'].mean()
+df_coords_spectral['y'] = df_coords_spectral['y'] + 766
+df_coords_spectral['x'] = df_coords_spectral['x'] + 768
+
+df_coords_new = pd.concat([df_coords_camera,df_coords_spectral],ignore_index=True)
+
+for color in ["green","yellow","red"]:
+    fig = px.scatter_3d(
+        data_frame=df_coords_new[
+            df_coords_new["color"].eq(color) & 
+            df_coords_new["mode"].eq("weighted")
+        ],
+        x="x",y="y",z="z",color="detector",
+        title=color
+    )
+    fig.show()
+
+for color in ["green","yellow","red"]:
+    fig = px.scatter(
+        data_frame=df_coords_new[
+            df_coords_new["color"].eq(color) & 
+            df_coords_new["mode"].eq("weighted")
+        ],
+        x="x",y="y",color="detector",
+        title=color
+    )
+    fig.show()
+
