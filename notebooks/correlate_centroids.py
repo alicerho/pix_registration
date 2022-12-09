@@ -186,7 +186,7 @@ for mode in ["masked","weighted","maxima"]:
         fig = px.scatter_3d(
             data_frame=df_coords_new[
                 df_coords_new["color"].eq(color) & 
-                df_coords_new["mode"].eq("weighted")
+                df_coords_new["mode"].eq(mode)
             ],
             x="x",y="y",z="z",color="detector",
             title=f"{mode}; {color}"
@@ -198,7 +198,7 @@ for mode in ["masked","weighted","maxima"]:
         fig = px.scatter(
             data_frame=df_coords_new[
                 df_coords_new["color"].eq(color) & 
-                df_coords_new["mode"].eq("weighted")
+                df_coords_new["mode"].eq(mode)
             ],
             x="x",y="y",color="detector",
             title=f"{mode}; {color}"
@@ -253,7 +253,7 @@ for mode in ["masked","weighted","maxima"]:
                 "z": 0.,
                 'y': predict_camera[:,0],
                 'x': predict_camera[:,1],
-                "detector": "predicted_camera"
+                "detector": f"predicted_camera_{transf_type}"
             }))
 
             matrix_camera2spectral = np.loadtxt(f"intermediate/transforms/camera2spectral_{color}_{mode}_{transf_type}.txt")
@@ -272,9 +272,22 @@ for mode in ["masked","weighted","maxima"]:
                 "z": 0.,
                 'y': predict_spectral[:,0] + 766,
                 'x': predict_spectral[:,1] + 768,
-                "detector": "predicted_spectral"
+                "detector": f"predicted_spectral_{transf_type}"
             }))
 df_coords_prediction = pd.concat(list_coords_predict,ignore_index=True)
 
-
-
+for mode in ["masked","weighted","maxima"]:
+    for color in ["green","yellow","red"]:
+        fig = px.scatter(
+            data_frame=df_coords_prediction[
+                df_coords_prediction["color"].eq(color) & 
+                df_coords_prediction["mode"].eq(mode)
+            ],
+            x="x",y="y",color="detector",
+            title=f"{mode}; {color}"
+        )
+        fig.update_yaxes(
+            scaleanchor = "x",
+            scaleratio = 1,
+        ) # keep the aspect ratio of both axes.
+        fig.write_html(f"intermediate/visual/test_{mode}_{color}.html")
