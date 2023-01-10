@@ -1,9 +1,3 @@
-# 1. use ilastik to segment both spectral and camera images, 
-# 2. find the centroids inside each components 
-#    weighted by the intensity in the original image.
-# Hopefully the rotation is within the plane
-# 
-
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -18,10 +12,10 @@ from skimage import util,io,measure,transform
 def nd2tif(path_in,path_out):
     with ND2Reader(str(path_in)) as file_nd2:
         if 'c' in file_nd2.sizes.keys():
-            file_nd2.bundle_axes = 'czyx'
+            file_nd2.bundle_axes = 'cyx'
             need_sum = True
         else:
-            file_nd2.bundle_axes = 'zyx'
+            file_nd2.bundle_axes = 'yx'
             need_sum = False
         file_nd2.iter_axies  = 't'
         img_nd2 = file_nd2[0].astype(int)
@@ -30,11 +24,20 @@ def nd2tif(path_in,path_out):
     io.imsave(str(path_out),util.img_as_uint(img_nd2))
     return None
 
-for path_nd2 in Path("data/2022-11-08_beads_equal_pixel_size").glob("camera*.nd2"):
-    nd2tif(str(path_nd2),f"intermediate/tiff/{path_nd2.stem}.tif")
-for path_nd2 in Path("data/2022-11-08_beads_equal_pixel_size").glob("spectra*.nd2"):
+list_files = [
+    "EYrainbow-Whi5Up_CSM-complete_field-0_camera-CFP.nd2",
+    "EYrainbow-Whi5Up_CSM-complete_field-0_camera-DAPI.nd2",
+    "EYrainbow-Whi5Up_CSM-complete_field-0_spectral-blue.nd2",
+    "EYrainbow-Whi5Up_CSM-complete_field-2_camera-CFP.nd2",
+    "EYrainbow-Whi5Up_CSM-complete_field-2_camera-DAPI.nd2",
+    "EYrainbow-Whi5Up_CSM-complete_field-2_spectral-blue.nd2"
+]
+
+for file in list_files:
+    path_nd2 = Path("data/2022-12-12_CellsEqualPixels_blue")/file
     nd2tif(str(path_nd2),f"intermediate/tiff/{path_nd2.stem}.tif")
 
+# use ilastik to segment both spectral and camera images
 
 # turn 1-2 binary images to label images
 
@@ -45,7 +48,7 @@ def binary2label(path_in,path_out):
     io.imsave(str(path_out),util.img_as_uint(img_label))
     return None
 
-for path_binary in Path("intermediate/segment").glob("*.tiff"):
+for path_binary in Path("intermediate/segment").glob("EY*.tiff"):
     binary2label(
         str(path_binary),
         f"intermediate/label/{path_binary.stem.rpartition('_')[0]}_label.tif"
@@ -58,39 +61,55 @@ for path_binary in Path("intermediate/segment").glob("*.tiff"):
 # turn mapping between labels to mapping between coordiantes 
 # (max or weighted average)
 dict_images = {
-    "green":  {
+    "DAPI": {
         "camera": {
-            "intensity": "intermediate/tiff/camera-FITC_zStack_Beads-100nm_field-0.tif",
-            "label":     "intermediate/label/camera-FITC_zStack_Beads-100nm_field-0_label.tif"
+            "intensity": [
+                "intermediate/tiff/EYrainbow-Whi5Up_CSM-complete_field-0_camera-DAPI.tif",
+                "intermediate/tiff/EYrainbow-Whi5Up_CSM-complete_field-2_camera-DAPI.tif"
+            ],
+            "label":     [
+                "intermediate/label/EYrainbow-Whi5Up_CSM-complete_field-0_camera-DAPI_label.tif",
+                "intermediate/label/EYrainbow-Whi5Up_CSM-complete_field-2_camera-DAPI_label.tif"
+            ]
         },
         "spectral": {
-            "intensity": "intermediate/tiff/spectra-green_zStack_Beads-100nm_field-0.tif",
-            "label":     "intermediate/label/spectra-green_zStack_Beads-100nm_field-0_label.tif"
+            "intensity": [
+                "intermediate/tiff/EYrainbow-Whi5Up_CSM-complete_field-0_spectral-blue.tif",
+                "intermediate/tiff/EYrainbow-Whi5Up_CSM-complete_field-2_spectral-blue.tif"
+            ],
+            "label":     [
+                "intermediate/label/EYrainbow-Whi5Up_CSM-complete_field-0_spectral-blue_label.tif",
+                "intermediate/label/EYrainbow-Whi5Up_CSM-complete_field-2_spectral-blue_label.tif"
+            ]
         }
     },
-    "yellow": {
+    "CFP":    {
         "camera": {
-            "intensity": "intermediate/tiff/camera-YFP_zStack_Beads-100nm_field-0.tif",
-            "label":     "intermediate/label/camera-YFP_zStack_Beads-100nm_field-0_label.tif"
+            "intensity": [
+                "intermediate/tiff/EYrainbow-Whi5Up_CSM-complete_field-0_camera-CFP.tif",
+                "intermediate/tiff/EYrainbow-Whi5Up_CSM-complete_field-2_camera-CFP.tif"
+            ],
+            "label":     [
+                "intermediate/label/EYrainbow-Whi5Up_CSM-complete_field-0_camera-CFP_label.tif",
+                "intermediate/label/EYrainbow-Whi5Up_CSM-complete_field-2_camera-CFP_label.tif"
+            ]
         },
         "spectral": {
-            "intensity": "intermediate/tiff/spectra-yellow_zStack_Beads-100nm_field-0.tif",
-            "label":     "intermediate/label/spectra-yellow_zStack_Beads-100nm_field-0_label.tif"
-        }
-    },
-    "red":    {
-        "camera": {
-            "intensity": "intermediate/tiff/camera-TRITC_zStack_Beads-100nm_field-0.tif",
-            "label":     "intermediate/label/camera-TRITC_zStack_Beads-100nm_field-0_label.tif"
-        },
-        "spectral": {
-            "intensity": "intermediate/tiff/spectra-red_zStack_Beads-100nm_field-0.tif",
-            "label":     "intermediate/label/spectra-red_zStack_Beads-100nm_field-0_label.tif"
+            "intensity": [
+                "intermediate/tiff/EYrainbow-Whi5Up_CSM-complete_field-0_spectral-blue.tif",
+                "intermediate/tiff/EYrainbow-Whi5Up_CSM-complete_field-2_spectral-blue.tif"
+            ],
+            "label":     [
+                "intermediate/label/EYrainbow-Whi5Up_CSM-complete_field-0_spectral-blue_label.tif",
+                "intermediate/label/EYrainbow-Whi5Up_CSM-complete_field-2_spectral-blue_label.tif"
+            ]
         }
     }
 }
 
-mappings  = pd.read_csv("intermediate/mapping.csv")
+# TODO
+
+mappings  = pd.read_csv("intermediate/mapping_blue.csv")
 list_coords = []
 for color in ["green","yellow","red"]:
     # read images
