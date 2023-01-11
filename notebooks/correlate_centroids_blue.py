@@ -107,121 +107,96 @@ dict_images = {
     }
 }
 
-# TODO
 
 mappings  = pd.read_csv("intermediate/mapping_blue.csv")
 list_coords = []
-for color in ["green","yellow","red"]:
-    # read images
-    camera_intensity = io.imread(dict_images[color]["camera"]["intensity"])
-    camera_label     = io.imread(dict_images[color]["camera"]["label"])
-    spectral_intensity = io.imread(dict_images[color]["spectral"]["intensity"])
-    spectral_label     = io.imread(dict_images[color]["spectral"]["label"])
-    # measure 
-    regionprops_camera   = measure.regionprops(label_image=camera_label,  intensity_image=camera_intensity)
-    regionprops_spectral = measure.regionprops(label_image=spectral_label,intensity_image=spectral_intensity)
-    # map to coordinates
-    mapping = mappings[mappings["channel"].eq(color)]
-    for pair in mapping.iterrows():
-        label_camera,label_spectral = pair[1]["camera"],pair[1]["spectral"]
+for color in ["DAPI","CFP"]:
+    for f,field in enumerate([0,1]):
+        # read images
+        camera_intensity = io.imread(dict_images[color]["camera"]["intensity"][f])
+        camera_label     = io.imread(dict_images[color]["camera"]["label"][f])
+        spectral_intensity = io.imread(dict_images[color]["spectral"]["intensity"][f])
+        spectral_label     = io.imread(dict_images[color]["spectral"]["label"][f])
+        # measure 
+        regionprops_camera   = measure.regionprops(label_image=camera_label,  intensity_image=camera_intensity)
+        regionprops_spectral = measure.regionprops(label_image=spectral_label,intensity_image=spectral_intensity)
+        # map to coordinates
+        mapping = mappings[mappings["field"].eq(field)]
+        for pair in mapping.iterrows():
+            label_camera,label_spectral = pair[1][color],pair[1]["spectral"]
 
-        centroid_camera_masked = regionprops_camera[label_camera-1].centroid
-        centroid_camera_weight = regionprops_camera[label_camera-1].weighted_centroid
-        centroid_camera_maxima = (np.array(regionprops_camera[label_camera-1].bbox[:3])
-                                 +np.array(tuple(map(np.mean,
-                                       np.where(
-                                           regionprops_camera[label_camera-1].intensity_image
-                                         ==regionprops_camera[label_camera-1].max_intensity)
-                                 ))))
+            centroid_camera_masked = regionprops_camera[label_camera-1].centroid
+            centroid_camera_weight = regionprops_camera[label_camera-1].weighted_centroid
+            centroid_camera_maxima = (np.array(regionprops_camera[label_camera-1].bbox[:2])
+                                     +np.array(tuple(map(np.mean,
+                                           np.where(
+                                               regionprops_camera[label_camera-1].intensity_image
+                                             ==regionprops_camera[label_camera-1].max_intensity)
+                                     ))))
 
-        centroid_spectral_masked = regionprops_spectral[label_spectral-1].centroid
-        centroid_spectral_weight = regionprops_spectral[label_spectral-1].weighted_centroid
-        centroid_spectral_maxima = (np.array(regionprops_spectral[label_spectral-1].bbox[:3])
-                                   +np.array(tuple(map(np.mean,
-                                       np.where(
-                                           regionprops_spectral[label_spectral-1].intensity_image
-                                         ==regionprops_spectral[label_spectral-1].max_intensity)
-                                   ))))
-        list_coords.append(pd.DataFrame({
-            "color": [color]*3,
-            "camera_label": [label_camera]*3,
-            "spectral_label": [label_spectral]*3,
-            "camera_mode":   ["masked","weighted","maxima"],
-            "spectral_mode": ["masked","weighted","maxima"],
-            "camera_z": [centroid_camera_masked[0],centroid_camera_weight[0],centroid_camera_maxima[0]],
-            "camera_y": [centroid_camera_masked[1],centroid_camera_weight[1],centroid_camera_maxima[1]],
-            "camera_x": [centroid_camera_masked[2],centroid_camera_weight[2],centroid_camera_maxima[2]],
-            "spectral_z": [centroid_spectral_masked[0],centroid_spectral_weight[0],centroid_spectral_maxima[0]],
-            "spectral_y": [centroid_spectral_masked[1],centroid_spectral_weight[1],centroid_spectral_maxima[1]],
-            "spectral_x": [centroid_spectral_masked[2],centroid_spectral_weight[2],centroid_spectral_maxima[2]]
-        }))
+            centroid_spectral_masked = regionprops_spectral[label_spectral-1].centroid
+            centroid_spectral_weight = regionprops_spectral[label_spectral-1].weighted_centroid
+            centroid_spectral_maxima = (np.array(regionprops_spectral[label_spectral-1].bbox[:2])
+                                       +np.array(tuple(map(np.mean,
+                                           np.where(
+                                               regionprops_spectral[label_spectral-1].intensity_image
+                                             ==regionprops_spectral[label_spectral-1].max_intensity)
+                                       ))))
+            list_coords.append(pd.DataFrame({
+                "color": [color]*3,
+                "field": [f]*3,
+                "camera_label": [label_camera]*3,
+                "spectral_label": [label_spectral]*3,
+                "camera_mode":   ["masked","weighted","maxima"],
+                "spectral_mode": ["masked","weighted","maxima"],
+                "camera_y": [centroid_camera_masked[0],centroid_camera_weight[0],centroid_camera_maxima[0]],
+                "camera_x": [centroid_camera_masked[1],centroid_camera_weight[1],centroid_camera_maxima[1]],
+                "spectral_y": [centroid_spectral_masked[0],centroid_spectral_weight[0],centroid_spectral_maxima[0]],
+                "spectral_x": [centroid_spectral_masked[1],centroid_spectral_weight[1],centroid_spectral_maxima[1]]
+            }))
 df_coords = pd.concat(list_coords,ignore_index=True)
-df_coords.to_csv("intermediate/coordinations.csv",index=False)
+df_coords.to_csv("intermediate/coordinations_blue.csv",index=False)
 
 
 # visualize the coordinates
 
-df_coords = pd.read_csv("intermediate/coordinations.csv")
-df_coords.sort_values(["camera_mode","color","spectral_label","camera_label"],inplace=True)
+df_coords = pd.read_csv("intermediate/coordinations_blue.csv")
+df_coords.sort_values(["camera_mode","color","field","spectral_label","camera_label"],inplace=True)
 
-df_coords_camera   = df_coords.loc[:,["color","camera_label","camera_mode","camera_z","camera_y","camera_x"]]
+df_coords_camera = df_coords.loc[:,["color","field","camera_label","camera_mode","camera_y","camera_x"]]
 df_coords_camera["detector"] = "camera"
 df_coords_camera.rename(
     columns={
         "camera_label": "label",
         "camera_mode":  "mode",
-        "camera_z":     "z",
         "camera_y":     "y",
         "camera_x":     "x"
     },
     inplace=True
 )
-for mode in ["masked","weighted","maxima"]:
-    for color in ["green","yellow","red"]:
-        df_coords_camera.loc[df_coords_camera["mode"].eq(mode)&df_coords_camera["color"].eq(color),'z'] = df_coords_camera.loc[df_coords_camera["mode"].eq(mode)&df_coords_camera["color"].eq(color),'z'] - df_coords_camera.loc[df_coords_camera["mode"].eq(mode)&df_coords_camera["color"].eq(color),'z'].mean()
 
-df_coords_spectral = df_coords.loc[:,["color","spectral_label","spectral_mode","spectral_z","spectral_y","spectral_x"]]
+
+df_coords_spectral = df_coords.loc[:,["color","field","spectral_label","spectral_mode","spectral_y","spectral_x"]]
 df_coords_spectral["detector"] = "spectral"
 df_coords_spectral.rename(
     columns={
         "spectral_label": "label",
         "spectral_mode":  "mode",
-        "spectral_z":     "z",
         "spectral_y":     "y",
         "spectral_x":     "x"
     },
     inplace=True
 )
-for mode in ["masked","weighted","maxima"]:
-    for color in ["green","yellow","red"]:
-        df_coords_spectral.loc[df_coords_spectral['mode'].eq(mode)&df_coords_spectral['color'].eq(color),'z'] = df_coords_spectral.loc[df_coords_spectral['mode'].eq(mode)&df_coords_spectral['color'].eq(color),'z'] - df_coords_spectral.loc[df_coords_spectral['mode'].eq(mode)&df_coords_spectral['color'].eq(color),'z'].mean()
-df_coords_spectral['y'] = df_coords_spectral['y'] + 766
-df_coords_spectral['x'] = df_coords_spectral['x'] + 768
+
+df_coords_spectral['y'] = df_coords_spectral['y'] + 256
+df_coords_spectral['x'] = df_coords_spectral['x'] + 256
 
 df_coords_new = pd.concat([df_coords_camera,df_coords_spectral],ignore_index=True)
 
 for mode in ["masked","weighted","maxima"]:
-    fig = px.scatter_3d(
-        data_frame=df_coords_new[df_coords_new["mode"].eq(mode)],
-        x="x",y="y",z="z",color="color",symbol="detector",
-        title=f"{mode}; all colors"
-    )
-    fig.write_html(f"intermediate/visual/3d_{mode}_allcolors.html")
-    for color in ["green","yellow","red"]:
-        fig = px.scatter_3d(
-            data_frame=df_coords_new[
-                df_coords_new["color"].eq(color) & 
-                df_coords_new["mode"].eq(mode)
-            ],
-            x="x",y="y",z="z",color="detector",
-            title=f"{mode}; {color}"
-        )
-        fig.write_html(f"intermediate/visual/3d_{mode}_{color}.html")
-
-for mode in ["masked","weighted","maxima"]:
     fig = px.scatter(
         data_frame=df_coords_new[df_coords_new["mode"].eq(mode)],
-        x="x",y="y",color="color",symbol="detector",
+        x="x",y="y",color="color",symbol="detector",size="field",
         title=f"{mode}; all colors"
     )
     fig.update_yaxes(
@@ -229,7 +204,7 @@ for mode in ["masked","weighted","maxima"]:
         scaleratio = 1,
     ) # keep the aspect ratio of both axes.
     fig.write_html(f"intermediate/visual/2d_{mode}_allcolors.html")
-    for color in ["green","yellow","red"]:
+    for color in ["DAPI","CFP"]:
         fig = px.scatter(
             data_frame=df_coords_new[
                 df_coords_new["color"].eq(color) & 
