@@ -111,7 +111,7 @@ dict_images = {
 mappings  = pd.read_csv("intermediate/mapping_blue.csv")
 list_coords = []
 for color in ["DAPI","CFP"]:
-    for f,field in enumerate([0,1]):
+    for f,field in enumerate([0,2]):
         # read images
         camera_intensity = io.imread(dict_images[color]["camera"]["intensity"][f])
         camera_label     = io.imread(dict_images[color]["camera"]["label"][f])
@@ -144,7 +144,7 @@ for color in ["DAPI","CFP"]:
                                        ))))
             list_coords.append(pd.DataFrame({
                 "color": [color]*3,
-                "field": [f]*3,
+                "field": [field]*3,
                 "camera_label": [label_camera]*3,
                 "spectral_label": [label_spectral]*3,
                 "camera_mode":   ["masked","weighted","maxima"],
@@ -203,7 +203,7 @@ for mode in ["masked","weighted","maxima"]:
         scaleanchor = "x",
         scaleratio = 1,
     ) # keep the aspect ratio of both axes.
-    fig.write_html(f"intermediate/visual/2d_{mode}_allcolors.html")
+    fig.write_html(f"intermediate/visual/2d_{mode}_bluechannels.html")
     for color in ["DAPI","CFP"]:
         fig = px.scatter(
             data_frame=df_coords_new[
@@ -225,7 +225,7 @@ for mode in ["masked","weighted","maxima"]:
 
 # fit the transformation
 for mode in ["masked","weighted","maxima"]:
-    for color in ["green","yellow","red"]:
+    for color in ["DAPI","CFP"]:
         df_subset = df_coords.loc[df_coords["color"].eq(color) & df_coords["camera_mode"].eq(mode)]
         yx_camera   = df_subset[["camera_y",  "camera_x"]].to_numpy()
         yx_spectral = df_subset[["spectral_y","spectral_x"]].to_numpy()
@@ -237,8 +237,20 @@ for mode in ["masked","weighted","maxima"]:
             success = transf.estimate(yx_spectral,yx_camera)
             if success:
                 np.savetxt(f"intermediate/transforms/spectral2camera_{color}_{mode}_{transf_type}.txt",transf.params)
+        for f,field in enumerate([0,2]):
+            df_subset = df_coords.loc[df_coords["color"].eq(color) & df_coords["camera_mode"].eq(mode) & df_coords["field"].eq(f)]
+            yx_camera   = df_subset[["camera_y",  "camera_x"]].to_numpy()
+            yx_spectral = df_subset[["spectral_y","spectral_x"]].to_numpy()
+            for transf_type in ["EuclideanTransform","SimilarityTransform","AffineTransform"]:
+                transf = getattr(transform,transf_type)()
+                success = transf.estimate(yx_camera,yx_spectral)
+                if success:
+                    np.savetxt(f"intermediate/transforms/camera2spectral_{color}_{mode}_{transf_type}_field-{field}.txt",transf.params)
+                success = transf.estimate(yx_spectral,yx_camera)
+                if success:
+                    np.savetxt(f"intermediate/transforms/spectral2camera_{color}_{mode}_{transf_type}_field-{field}.txt",transf.params)
 
-
+# TODO
 # backtest the transform parameters
 list_coords_predict = [df_coords_new]
 for mode in ["masked","weighted","maxima"]:
