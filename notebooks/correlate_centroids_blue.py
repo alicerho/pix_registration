@@ -17,7 +17,7 @@ def nd2tif(path_in,path_out):
         else:
             file_nd2.bundle_axes = 'yx'
             need_sum = False
-        file_nd2.iter_axies  = 't'
+        file_nd2.iter_axes  = 't'
         img_nd2 = file_nd2[0].astype(int)
         if need_sum:
             img_nd2 = np.sum(img_nd2,axis=0)
