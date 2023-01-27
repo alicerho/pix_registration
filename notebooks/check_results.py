@@ -31,9 +31,16 @@ for cam,spec,ch,transfile in (
         file_spectral.iter_axes = iter_axes
         img_spectral = file_spectral[idx].astype(int)
         img_spectral = (img_spectral-img_spectral.min())/(img_spectral.max()-img_spectral.min())
+
+    img_trnslt = np.zeros((1024,1024))
+    img_trnslt[256:1024-256,256:1024-256] = img_spectral
+    img_trnslt = (img_trnslt-img_trnslt.min())/(img_trnslt.max()-img_trnslt.min())
+
     np_transf  = np.loadtxt(f"intermediate/final/{transfile}.txt")
     transf = transform.AffineTransform(matrix=np_transf)
     img_transf = transform.warp(img_spectral,transf.inverse,output_shape=(1024,1024))
     img_transf = (img_transf - img_transf.min())/(img_transf.max() - img_transf.min())
-    img_compare = np.stack([img_camera,img_transf])
-    io.imsave(f"intermediate/compare/{prefix}_camera-{cam}_spectral-{spec}.tif",util.img_as_float32(img_compare))
+
+    img_compare = np.stack([img_trnslt,img_camera,img_transf])
+
+    io.imsave(f"intermediate/compare/{prefix}_camera-{cam}-orig_spectral-{spec}_transformed.tif",util.img_as_float32(img_compare))
