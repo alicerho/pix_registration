@@ -2,7 +2,7 @@ import numpy as np
 from skimage import util,io,transform
 from nd2reader import ND2Reader
 
-prefix = "EYrainbow-WTstar_CSM-complete_field-7"
+prefix = "EYrainbow-WTstar_CSM-complete_field-8"
 
 for cam,spec,ch,transfile in (
     ("DAPI", "blue",  0,    "spectral-512_camera-1024_DAPI_weighted_Affine"),

@@ -7,21 +7,21 @@ import pandas as pd
 from pathlib import Path
 from skimage import transform
 
-df_heads = pd.read_csv("intermediate/coordinations.csv")
-df_heads = df_heads[df_heads["camera_mode"].eq("weighted")]
+df_beads = pd.read_csv("intermediate/coordinations.csv")
+df_beads = df_beads[df_beads["camera_mode"].eq("weighted")]
 
 df_blues = pd.read_csv("intermediate/coordinations_blue.csv")
 df_blues = df_blues[df_blues["camera_mode"].eq("weighted")]
 
-df_coord = pd.concat([df_heads,df_blues],ignore_index=True)
+df_coord = pd.concat([df_beads,df_blues],ignore_index=True)
 
 for old in ["green","yellow","red"]:
     df_coord.loc[df_coord["color"].eq(old),"camera_y"] = df_coord.loc[df_coord["color"].eq(old),"camera_y"] - 510
     df_coord.loc[df_coord["color"].eq(old),"camera_x"] = df_coord.loc[df_coord["color"].eq(old),"camera_x"] - 512
 
 for color in ["DAPI","CFP","green","yellow","red"]:
-    yx_camera   = df_coord[["camera_y",  "camera_x"]].to_numpy()
-    yx_spectral = df_coord[["spectral_y","spectral_x"]].to_numpy()
+    yx_camera   = df_coord.loc[df_coord["color"].eq(color),["camera_y","camera_x"]].to_numpy()
+    yx_spectral = df_coord.loc[df_coord["color"].eq(color),["spectral_y","spectral_x"]].to_numpy()
     
     transf_camera2spectral = transform.AffineTransform()
     success_camera2spectral = transf_camera2spectral.estimate(yx_camera,yx_spectral)
