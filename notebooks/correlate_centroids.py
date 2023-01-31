@@ -4,38 +4,42 @@
 # Hopefully the rotation is within the plane
 # 
 
+# %%
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.express as px
 from pathlib import Path
 from nd2reader import ND2Reader
-from skimage import util,io,measure,transform
+from skimage import util,io,filters,measure,transform
 
 
+# %%
 # format images from nd2 to tif
 
 def nd2tif(path_in,path_out):
     with ND2Reader(str(path_in)) as file_nd2:
+        bundle_axes = 'zyx' if 'z' in file_nd2.sizes.keys() else 'yx'
         if 'c' in file_nd2.sizes.keys():
-            file_nd2.bundle_axes = 'czyx'
+            bundle_axes = 'c'+bundle_axes
             need_sum = True
         else:
-            file_nd2.bundle_axes = 'zyx'
             need_sum = False
+        file_nd2.bundle_axes = bundle_axes
         file_nd2.iter_axies  = 't'
         img_nd2 = file_nd2[0].astype(int)
         if need_sum:
             img_nd2 = np.sum(img_nd2,axis=0)
-    io.imsave(str(path_out),util.img_as_uint(img_nd2))
+    img_nd2 = (img_nd2-img_nd2.min())/(img_nd2.max()-img_nd2.min())
+    img_nd2 = filters.gaussian(img_nd2,sigma=0.5)
+    io.imsave(str(path_out),util.img_as_float(img_nd2))
     return None
 
-for path_nd2 in Path("data/2022-11-08_beads_equal_pixel_size").glob("camera*.nd2"):
-    nd2tif(str(path_nd2),f"intermediate/tiff/{path_nd2.stem}.tif")
-for path_nd2 in Path("data/2022-11-08_beads_equal_pixel_size").glob("spectra*.nd2"):
+for path_nd2 in Path(r"D:\Documents\FILES\lab_ARCHIVE\2023-01-27_newBeads").glob("*.nd2"):
     nd2tif(str(path_nd2),f"intermediate/tiff/{path_nd2.stem}.tif")
 
 
+# %%
 # turn 1-2 binary images to label images
 
 def binary2label(path_in,path_out):
