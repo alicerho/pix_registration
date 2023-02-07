@@ -20,13 +20,13 @@ for old in ["green","yellow","red"]:
     df_coord.loc[df_coord["color"].eq(old),"camera_x"] = df_coord.loc[df_coord["color"].eq(old),"camera_x"] - 512
 
 for color in ["DAPI","CFP","green","yellow","red"]:
-    yx_camera   = df_coord.loc[df_coord["color"].eq(color),["camera_y","camera_x"]].to_numpy()
-    yx_spectral = df_coord.loc[df_coord["color"].eq(color),["spectral_y","spectral_x"]].to_numpy()
+    yx_camera   = df_coord.loc[df_coord["color"].eq(color),["camera_x","camera_y"]].to_numpy()
+    yx_spectral = df_coord.loc[df_coord["color"].eq(color),["spectral_x","spectral_y"]].to_numpy()
     
-    transf_camera2spectral = transform.AffineTransform()
-    success_camera2spectral = transf_camera2spectral.estimate(yx_camera,yx_spectral)
-    if success_camera2spectral:
-        np.savetxt(f"intermediate/final/camera-1024_spectral-512_{color}_weighted_Affine.txt",transf_camera2spectral.params)
+    # transf_camera2spectral = transform.AffineTransform()
+    # success_camera2spectral = transf_camera2spectral.estimate(yx_camera,yx_spectral)
+    # if success_camera2spectral:
+    #     np.savetxt(f"intermediate/final/camera-1024_spectral-512_{color}_weighted_Affine.txt",transf_camera2spectral.params)
     
     transf_spectral2camera = transform.AffineTransform()
     success_spectral2camera = transf_spectral2camera.estimate(yx_spectral,yx_camera)

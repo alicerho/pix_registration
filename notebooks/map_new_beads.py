@@ -1,8 +1,11 @@
+# %%
 import numpy as np
 import pandas as pd
 from pathlib import Path
 from skimage import util,io,measure
 
+# %%
+# label segmented images
 stems = [
     "FOV-2_PFS_by-color",
     "FOV-2_PFS_by-detector",
@@ -28,4 +31,9 @@ for fov in stems:
                 util.img_as_uint(img_label)
             )
 
+# %%
+# on ilastik, 
+# correlate coordinates between channels of cameras and spectral detectors.
+
+# %%
 
