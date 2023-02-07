@@ -62,7 +62,7 @@ for fov in [2,3]:
                 list_fov.append(fov)
                 list_by.append(by)
                 list_detector.append("camera")
-                list_color.append(spectral)
+                list_color.append(camera)
                 list_idx.append(idx)
                 list_label.append(int(label))
                 list_y.append(y)
