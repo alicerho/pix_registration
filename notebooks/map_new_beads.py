@@ -17,6 +17,7 @@ colors = {
     "spectral": ["blue","green","yellow","red"]
 }
 
+# %%
 for fov in stems:
     for detector in colors.keys():
         for color in colors[detector]:
@@ -36,4 +37,36 @@ for fov in stems:
 # correlate coordinates between channels of cameras and spectral detectors.
 
 # %%
+df_coords = pd.read_csv("intermediate/coordinations_new_beads.csv")
 
+# %%
+# assign average coords to CFP camera channel.
+# %% already done in transform_new_beads.py
+for stem in stems:
+    list_y = []
+    list_x = []
+    fov = int(stem.partition("FOV-")[2].partition("_"))
+    by  = stem.partition("by-")[2]
+    for color in colors["camera"]:
+        list_y.append(
+            df_coords.loc[
+                (
+                    df_coords["FOV"].eq(fov)
+                  & df_coords["by"].eq(by)
+                  & df_coords["detector"].eq("camera")
+                  & df_coords["color"].eq(color)
+                ),
+                "y"
+            ].to_numpy()
+        )
+        list_x.append(
+            df_coords.loc[
+                (
+                    df_coords["FOV"].eq(fov)
+                  & df_coords["by"].eq(by)
+                  & df_coords["detector"].eq("camera")
+                  & df_coords["color"].eq(color)
+                ),
+                "x"
+            ].to_numpy()
+        )
