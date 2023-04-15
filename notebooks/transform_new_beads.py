@@ -69,7 +69,7 @@ for fov,by in ((2,"detector"),(2,"color"),(3,"detector")):
                     (
                         df_filled["FOV"].eq(fov)
                       & df_filled["by"].eq(by)
-                      & df_filled["detector"].eq("spectral")
+                      & df_filled["detector"].eq("camera")
                       & df_filled["color"].eq(c_dst)            
                     ),
                     ["x","y"]
