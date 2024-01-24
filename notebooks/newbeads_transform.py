@@ -46,12 +46,12 @@ for fov,by in ((2,"detector"),(2,"color"),(3,"detector")):
 df_filled = pd.concat(list_df,ignore_index=True)
 
 maps = (
-    ("blue","DAPI"),
-    ("blue","CFP"),
-    ("blue","FITC"),
-    ("green","DAPI"),
-    ("yellow","YFP"),
-    ("red","TRITC"),
+    ("blue"  , "DAPI"),
+    ("blue"  , "CFP"),
+    ("blue"  , "FITC"),
+    ("green" , "DAPI"),
+    ("yellow", "YFP"),
+    ("red"   , "TRITC"),
 )
 
 for fov,by in ((2,"detector"),(2,"color"),(3,"detector")):
@@ -78,4 +78,39 @@ for fov,by in ((2,"detector"),(2,"color"),(3,"detector")):
         success = transf.estimate(xy_src,xy_dst)
         if success:
             np.savetxt(f"intermediate/transforms/new-beads_{c_src}-512_{c_dst}-1024.txt",transf.params)
+            print("...saved once.")
 
+# Jan 24, 2024; from camera to spectral
+maps = (
+    ("DAPI" , "blue"),
+    ("CFP"  , "blue"),
+    ("FITC" , "blue"),
+    ("DAPI" , "green"),
+    ("YFP"  , "yellow"),
+    ("TRITC", "red"),
+)
+for fov,by in ((2,"detector"),(2,"color"),(3,"detector")):
+    for c_src,c_dst in maps:
+        xy_src = df_filled.loc[
+                    (
+                        df_filled["FOV"].eq(fov)
+                      & df_filled["by"].eq(by)
+                      & df_filled["detector"].eq("camera")
+                      & df_filled["color"].eq(c_src)            
+                    ),
+                    ["x","y"]
+                ].to_numpy()
+        xy_dst = df_filled.loc[
+                    (
+                        df_filled["FOV"].eq(fov)
+                      & df_filled["by"].eq(by)
+                      & df_filled["detector"].eq("spectral")
+                      & df_filled["color"].eq(c_dst)
+                    ),
+                    ["x","y"]
+                ].to_numpy()
+        transf = transform.AffineTransform()
+        success = transf.estimate(xy_src,xy_dst)
+        if success:
+            np.savetxt(f"intermediate/transforms/new-beads_{c_src}-512_{c_dst}-1024.txt",transf.params)
+            print("...saved once.")
