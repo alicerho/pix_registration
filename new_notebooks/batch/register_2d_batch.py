@@ -11,13 +11,20 @@ import csv
 # --------------------
 DATA_DIR = "../../data/2025-11-05_Registration2D"
 
-# Where ALL outputs go
+# Where all outputs go:
+# ROOT_OUT/
+#   FOV-1/
+#     blue_to_DAPI/
+#     green_to_FITC/
+#     ...
+#   FOV-2/
+#     ...
 ROOT_OUT = "outputs_2d"
 
-# FOVs to try – change if needed
+# FOVs to try – adjust if needed
 FOV_LIST = [1, 2, 3, 4, 5, 6]
 
-# Simon’s spectral–camera pairs
+# Simon's spectral–camera pairs
 PAIRS = [
     ("blue",   "DAPI"),
     ("green",  "FITC"),
@@ -39,6 +46,7 @@ def load_camera_image(fov, camera_name):
         arr = f.asarray()
     arr = np.squeeze(arr)
     if arr.ndim == 3:
+        # collapse Z/C with max projection
         arr = np.max(arr, axis=0)
     return arr.astype("float32")
 
@@ -50,7 +58,7 @@ def load_spectral_image(fov, spectral_name):
     with nd2.ND2File(path) as f:
         arr = f.asarray()
     arr = np.squeeze(arr)
-    # README: blue/red are (5,512,512) and should be summed over axis 0
+    # blue/red are (5,512,512) and should be summed over axis 0
     if arr.ndim == 3:
         arr = np.sum(arr, axis=0)
     return arr.astype("float32")
@@ -60,7 +68,7 @@ def center_crop(img, crop_size):
     h, w = img.shape
     y0 = h // 2 - crop_size // 2
     x0 = w // 2 - crop_size // 2
-    return img[y0:y0+crop_size, x0:x0+crop_size]
+    return img[y0:y0 + crop_size, x0:x0 + crop_size]
 
 
 def corr(a, b):
@@ -71,6 +79,74 @@ def norm01(img, p_lo=1, p_hi=99):
     lo, hi = np.percentile(img, [p_lo, p_hi])
     out = (img - lo) / (hi - lo + 1e-8)
     return np.clip(out, 0, 1)
+
+
+def compute_deformation_statistics(warp_field_path, fixed_image):
+    """
+    Compute deformation field statistics from SyN warp field.
+    
+    Args:
+        warp_field_path: Path to the warp field file (.nii.gz)
+        fixed_image: ANTs image object (used for domain)
+    
+    Returns:
+        dict with deformation statistics
+    """
+    # Load the warp field
+    warp_field = ants.image_read(warp_field_path)
+    warp_array = warp_field.numpy()  # Shape: (H, W, 2) for 2D
+    
+    # Extract displacement components
+    displacement_x = warp_array[:, :, 0]
+    displacement_y = warp_array[:, :, 1]
+    
+    # Compute displacement magnitude at each pixel
+    displacement_magnitude = np.sqrt(displacement_x**2 + displacement_y**2)
+    
+    # Deformation statistics
+    mean_disp = float(np.mean(displacement_magnitude))
+    max_disp = float(np.max(displacement_magnitude))
+    std_disp = float(np.std(displacement_magnitude))
+    median_disp = float(np.median(displacement_magnitude))
+    
+    # Percentage of pixels with large deformations (>5 pixels)
+    large_deform_threshold = 5.0
+    pct_large_deform = float(100 * np.mean(displacement_magnitude > large_deform_threshold))
+    
+    # Compute Jacobian determinant (measures local expansion/compression)
+    try:
+        jacobian = ants.create_jacobian_determinant_image(
+            domain_image=fixed_image,
+            tx=warp_field_path
+        )
+        jac_array = jacobian.numpy()
+        
+        mean_jac = float(np.mean(jac_array))
+        std_jac = float(np.std(jac_array))
+        min_jac = float(np.min(jac_array))
+        
+        # Detect folding (negative Jacobian = topologically invalid)
+        num_folding = int(np.sum(jac_array <= 0))
+        pct_folding = float(100 * num_folding / jac_array.size)
+        
+    except Exception as e:
+        print(f"  Warning: Could not compute Jacobian: {e}")
+        mean_jac = np.nan
+        std_jac = np.nan
+        min_jac = np.nan
+        pct_folding = np.nan
+    
+    return {
+        "mean_displacement": mean_disp,
+        "max_displacement": max_disp,
+        "std_displacement": std_disp,
+        "median_displacement": median_disp,
+        "pct_large_deformation": pct_large_deform,
+        "mean_jacobian": mean_jac,
+        "std_jacobian": std_jac,
+        "min_jacobian": min_jac,
+        "pct_folding": pct_folding,
+    }
 
 
 def make_visualizations(cam_crop, moving_resampled,
@@ -121,10 +197,49 @@ def make_visualizations(cam_crop, moving_resampled,
     plt.close(fig)
 
 
+def make_deformation_visualization(warp_field_path, out_dir):
+    """
+    Create visualization of the deformation field.
+    """
+    warp_field = ants.image_read(warp_field_path)
+    warp_array = warp_field.numpy()
+    
+    displacement_x = warp_array[:, :, 0]
+    displacement_y = warp_array[:, :, 1]
+    displacement_magnitude = np.sqrt(displacement_x**2 + displacement_y**2)
+    
+    fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+    
+    # X displacement
+    im0 = axes[0].imshow(displacement_x, cmap='RdBu_r')
+    axes[0].set_title('X Displacement')
+    axes[0].axis('off')
+    plt.colorbar(im0, ax=axes[0], fraction=0.046, pad=0.04)
+    
+    # Y displacement
+    im1 = axes[1].imshow(displacement_y, cmap='RdBu_r')
+    axes[1].set_title('Y Displacement')
+    axes[1].axis('off')
+    plt.colorbar(im1, ax=axes[1], fraction=0.046, pad=0.04)
+    
+    # Magnitude
+    im2 = axes[2].imshow(displacement_magnitude, cmap='hot')
+    axes[2].set_title('Displacement Magnitude')
+    axes[2].axis('off')
+    plt.colorbar(im2, ax=axes[2], fraction=0.046, pad=0.04)
+    
+    plt.tight_layout()
+    fig.savefig(os.path.join(out_dir, "deformation_field.png"), dpi=200)
+    plt.close(fig)
+
+
+# --------------------
+# CORE: single pair
+# --------------------
 def register_one(fov, spec_ch, cam_ch):
     """
     Run affine + SyN registration for a single FOV and spectral–camera pair.
-    Returns a dict of metrics.
+    Returns a dict of metrics including deformation statistics.
     """
     print(f"\n=== FOV-{fov}: spectral-{spec_ch} -> camera-{cam_ch} ===")
 
@@ -134,7 +249,7 @@ def register_one(fov, spec_ch, cam_ch):
         print("  -> Skipping (files not found)")
         return None
 
-    # New folder structure: ROOT_OUT/FOV-x/spec_to_cam/
+    # Folder structure: ROOT_OUT/FOV-x/spec_to_cam/
     fov_dir = os.path.join(ROOT_OUT, f"FOV-{fov}")
     pair_dir = f"{spec_ch}_to_{cam_ch}"
     out_dir = os.path.join(fov_dir, pair_dir)
@@ -226,6 +341,25 @@ def register_one(fov, spec_ch, cam_ch):
     print(f"After Affine+SyN: corr={c_syn:.4f}, MAE={mae_syn:.4f}")
     print("SyN forward transforms:", reg_syn["fwdtransforms"])
 
+    # ---- Compute deformation field statistics ----
+    print("--- Computing deformation statistics ---")
+    warp_field_path = reg_syn["fwdtransforms"][0]
+    deform_stats = compute_deformation_statistics(warp_field_path, fixed)
+    
+    print(f"Mean displacement: {deform_stats['mean_displacement']:.3f} pixels")
+    print(f"Max displacement: {deform_stats['max_displacement']:.3f} pixels")
+    print(f"Std displacement: {deform_stats['std_displacement']:.3f} pixels")
+    print(f"Mean Jacobian: {deform_stats['mean_jacobian']:.4f}")
+    print(f"Folding %: {deform_stats['pct_folding']:.2f}%")
+
+    # Save deformation statistics to separate CSV
+    deform_csv_path = os.path.join(out_dir, "deformation_statistics.csv")
+    with open(deform_csv_path, "w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["metric", "value"])
+        for key, val in deform_stats.items():
+            w.writerow([key, val])
+
     # 6) Save images
     ants.image_write(ants.from_numpy(cam_crop),
                      os.path.join(out_dir, "fixed_camera.nii.gz"))
@@ -240,6 +374,9 @@ def register_one(fov, spec_ch, cam_ch):
     make_visualizations(cam_crop, moving_np_resampled,
                         warped_aff, warped_syn,
                         out_dir, spec_ch, cam_ch)
+    
+    # Create deformation field visualization
+    make_deformation_visualization(warp_field_path, out_dir)
 
     # 8) per-pair metrics CSV inside this pair folder
     metrics_path = os.path.join(out_dir, "metrics.csv")
@@ -248,12 +385,24 @@ def register_one(fov, spec_ch, cam_ch):
         "corr_before", "mae_before",
         "corr_affine", "mae_affine",
         "corr_affine_syn", "mae_affine_syn",
+        "mean_displacement", "max_displacement", "std_displacement",
+        "median_displacement", "pct_large_deformation",
+        "mean_jacobian", "std_jacobian", "min_jacobian", "pct_folding",
     ]
     row = [
         fov, spec_ch, cam_ch,
         c_before, mae_before,
         c_aff, mae_aff,
         c_syn, mae_syn,
+        deform_stats["mean_displacement"],
+        deform_stats["max_displacement"],
+        deform_stats["std_displacement"],
+        deform_stats["median_displacement"],
+        deform_stats["pct_large_deformation"],
+        deform_stats["mean_jacobian"],
+        deform_stats["std_jacobian"],
+        deform_stats["min_jacobian"],
+        deform_stats["pct_folding"],
     ]
     write_header = not os.path.exists(metrics_path)
     with open(metrics_path, "a", newline="") as f:
@@ -262,7 +411,8 @@ def register_one(fov, spec_ch, cam_ch):
             w.writerow(header)
         w.writerow(row)
 
-    return {
+    # Return dict with all metrics
+    result = {
         "FOV": fov,
         "spectral": spec_ch,
         "camera": cam_ch,
@@ -273,8 +423,14 @@ def register_one(fov, spec_ch, cam_ch):
         "corr_affine_syn": c_syn,
         "mae_affine_syn": mae_syn,
     }
+    result.update(deform_stats)
+    
+    return result
 
 
+# --------------------
+# BATCH DRIVER
+# --------------------
 def main():
     os.makedirs(ROOT_OUT, exist_ok=True)
 

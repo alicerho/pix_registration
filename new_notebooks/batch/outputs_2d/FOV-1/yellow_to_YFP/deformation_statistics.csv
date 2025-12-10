@@ -1,0 +1,10 @@
+metric,value
+mean_displacement,0.02209365926682949
+max_displacement,5.3144354820251465
+std_displacement,0.1460125893354416
+median_displacement,0.00013330680667422712
+pct_large_deformation,0.008392333984375
+mean_jacobian,0.9999998807907104
+std_jacobian,0.014134425669908524
+min_jacobian,0.5659357905387878
+pct_folding,0.0

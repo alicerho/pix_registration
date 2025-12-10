@@ -1,2 +1,2 @@
-FOV,spectral,camera,corr_before,mae_before,corr_affine,mae_affine,corr_affine_syn,mae_affine_syn
-1,blue,DAPI,-0.002036103300608257,139.7024688720703,0.00955601453130874,139.73779296875,0.048249278757966724,140.45849609375
+FOV,spectral,camera,corr_before,mae_before,corr_affine,mae_affine,corr_affine_syn,mae_affine_syn,mean_displacement,max_displacement,std_displacement,median_displacement,pct_large_deformation,mean_jacobian,std_jacobian,min_jacobian,pct_folding
+1,blue,DAPI,-0.002036103300608257,139.7024688720703,0.0020467449519141986,139.74530029296875,0.015649428632937768,140.3341827392578,0.24154053628444672,4.26558780670166,0.4466654062271118,0.07627863436937332,0.0,0.999961793422699,0.05640624091029167,0.47257140278816223,0.0
