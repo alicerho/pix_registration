@@ -1,0 +1,2 @@
+FOV,spectral,camera,corr_before,mae_before,corr_affine,mae_affine,corr_affine_syn,mae_affine_syn
+4,green,FITC,0.0017806692974483844,144.4562225341797,0.03409517285999298,144.3575439453125,0.024694055987993645,144.35047912597656

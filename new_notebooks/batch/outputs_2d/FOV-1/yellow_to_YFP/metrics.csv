@@ -1,0 +1,2 @@
+FOV,spectral,camera,corr_before,mae_before,corr_affine,mae_affine,corr_affine_syn,mae_affine_syn
+1,yellow,YFP,-0.0018632655114247958,15.228832244873047,1.862307942991294e-05,15.237918853759766,0.03843761303760465,15.220196723937988

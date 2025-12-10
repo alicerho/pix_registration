@@ -1,0 +1,2 @@
+FOV,spectral,camera,corr_before,mae_before,corr_affine,mae_affine,corr_affine_syn,mae_affine_syn
+3,blue,DAPI,-0.005096618120903746,132.44943237304688,0.005152501366655557,132.5749053955078,0.02330088055684365,132.9444580078125

@@ -1,4 +1,5 @@
 import os
+import csv
 import numpy as np
 import ants
 import nd2
@@ -117,6 +118,10 @@ def main():
     spec_ch = PAIR["spectral_channel"]
     cam_ch = PAIR["camera_channel"]
 
+    # define output directory early so everyone can use it
+    out_dir = f"outputs_FOV{FOV}_{spec_ch}_to_{cam_ch}"
+    os.makedirs(out_dir, exist_ok=True)
+
     print(f"=== FOV-{FOV}: spectral-{spec_ch} -> camera-{cam_ch} ===")
 
     # 1) Load images
@@ -166,6 +171,25 @@ def main():
     print(f"After Affine:      corr={c_aff:.4f}, MAE={mae_aff:.4f}")
     print("Affine transform file:", reg_aff["fwdtransforms"][0])
 
+    # ---- extract and save affine matrix ----
+    affine_path = reg_aff["fwdtransforms"][0]
+    affine_tx = ants.read_transform(affine_path)
+    params = np.array(affine_tx.parameters)   # [a11, a12, a21, a22, tx, ty]
+    A = params[:4].reshape(2, 2)
+    t = params[4:]
+
+    print("Affine 2x2 matrix:\n", A)
+    print("Affine translation (tx, ty):", t)
+
+    np.savetxt(os.path.join(out_dir, "affine_matrix_2x2.txt"), A)
+    np.savetxt(os.path.join(out_dir, "affine_translation.txt"), t)
+
+    # optional: 3×3 homogeneous matrix
+    A_h = np.eye(3)
+    A_h[:2, :2] = A
+    A_h[:2, 2] = t
+    np.savetxt(os.path.join(out_dir, "affine_matrix_3x3.txt"), A_h)
+
     # 5) Nonlinear (SyN) starting from affine result
     print("\n--- Affine + SyN (nonlinear) ---")
     reg_syn = ants.registration(
@@ -187,9 +211,7 @@ def main():
     print(f"After Affine+SyN:  corr={c_syn:.4f}, MAE={mae_syn:.4f}")
     print("SyN forward transform:", reg_syn["fwdtransforms"])
 
-    # 6) Save outputs
-    out_dir = f"outputs_FOV{FOV}_{spec_ch}_to_{cam_ch}"
-    os.makedirs(out_dir, exist_ok=True)
+    # 6) Save images
     ants.image_write(ants.from_numpy(cam_crop),
                      os.path.join(out_dir, "fixed_camera.nii.gz"))
     ants.image_write(ants.from_numpy(moving_np_resampled),
@@ -199,12 +221,11 @@ def main():
     ants.image_write(warped_syn_img,
                      os.path.join(out_dir, "warped_affine_syn.nii.gz"))
 
-    # visualizations (this is what lets you *see* how beads fit)
+    # visualizations
     make_visualizations(cam_crop, moving_np_resampled,
                         warped_aff, warped_syn, out_dir, spec_ch, cam_ch)
 
-    # 7) Save metrics to a tiny CSV
-    import csv
+    # 7) Save metrics to CSV
     metrics_path = os.path.join(out_dir, "metrics.csv")
     header = [
         "FOV", "spectral", "camera",
@@ -225,7 +246,7 @@ def main():
             w.writerow(header)
         w.writerow(row)
 
-    print("\nSaved warped images, overlays, and metrics to", out_dir)
+    print("\nSaved warped images, overlays, matrices, and metrics to", out_dir)
 
 
 if __name__ == "__main__":
