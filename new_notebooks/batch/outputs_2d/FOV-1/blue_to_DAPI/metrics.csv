@@ -1,2 +1,2 @@
 FOV,spectral,camera,num_beads_fixed,num_beads_moving,num_beads_matched,corr_before,mae_before,corr_affine,mae_affine,corr_improvement_affine,corr_syn,mae_syn,corr_improvement_syn
-1,blue,DAPI,17,17,6,-0.0020361028,139.7024688720703,0.188027,142.06285095214844,0.1900631,0.18190104,163.67422485351562,-0.006125957
+1,blue,DAPI,17,17,6,-0.0020361028,139.7024688720703,0.188027,142.06285095214844,0.1900631,0.26908994,163.6734161376953,0.08106294

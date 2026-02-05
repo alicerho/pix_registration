@@ -1,2 +1,2 @@
 FOV,spectral,camera,num_beads_fixed,num_beads_moving,num_beads_matched,corr_before,mae_before,corr_affine,mae_affine,corr_improvement_affine,corr_syn,mae_syn,corr_improvement_syn
-1,red,TRITC,21,19,6,0.0016773257,636.6576538085938,0.58037025,583.7744750976562,0.5786929,0.02468539,16.90193748474121,-0.55568486
+1,red,TRITC,21,19,6,0.0016773257,636.6576538085938,0.58037025,583.7744750976562,0.5786929,0.021527149,16.902359008789062,-0.5588431
