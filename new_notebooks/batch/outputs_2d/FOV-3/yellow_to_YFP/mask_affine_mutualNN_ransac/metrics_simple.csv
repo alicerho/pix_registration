@@ -1,0 +1,2 @@
+FOV,pair,status,num_fixed_objects,num_moving_objects,num_mutual_pairs,num_ransac_inliers,inlier_pct_10px,median_error_px,PASS
+3,yellow->YFP,OK,37,20,14,9,100.0,2.0508378221992634,YES

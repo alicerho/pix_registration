@@ -1,0 +1,2 @@
+FOV,pair,status,num_fixed_objects,num_moving_objects,num_mutual_pairs,num_ransac_inliers,inlier_pct_10px,median_error_px,PASS
+4,blue->DAPI,OK,23,21,10,4,28.57142857142857,20.11921799617645,NO

@@ -1,0 +1,2 @@
+FOV,pair,status,num_fixed_objects,num_moving_objects,num_mutual_pairs,num_ransac_inliers,inlier_pct_10px,median_error_px,PASS
+6,red->TRITC,OK,51,44,30,13,95.45454545454545,1.0345828573409166,YES

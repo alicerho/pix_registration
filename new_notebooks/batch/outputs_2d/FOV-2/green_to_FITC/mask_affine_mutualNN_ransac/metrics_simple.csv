@@ -1,0 +1,2 @@
+FOV,pair,status,num_fixed_objects,num_moving_objects,num_mutual_pairs,num_ransac_inliers,inlier_pct_10px,median_error_px,PASS
+2,green->FITC,OK,47,30,15,9,86.66666666666667,4.976530037948407,YES

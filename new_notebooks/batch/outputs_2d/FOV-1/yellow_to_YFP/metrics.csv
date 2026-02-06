@@ -1,2 +1,0 @@
-FOV,spectral,camera,num_beads_fixed,num_beads_moving,num_beads_matched,corr_before,mae_before,corr_affine,mae_affine,corr_improvement_affine,corr_syn,mae_syn,corr_improvement_syn
-1,yellow,YFP,21,18,8,-0.0018632659,15.228832244873047,0.74071175,14.926360130310059,0.742575,0.0007320208,15.85037612915039,-0.73997974

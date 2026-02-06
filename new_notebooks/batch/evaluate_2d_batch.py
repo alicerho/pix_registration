@@ -6,7 +6,7 @@ from scipy.spatial import cKDTree
 import matplotlib.pyplot as plt
 import csv
 
-ROOT_OUT = "outputs_2d"
+ROOT_OUT = "outputs_2d_w_masks"
 
 FOV_LIST = [1, 2, 3, 4, 5, 6]
 PAIRS = [
