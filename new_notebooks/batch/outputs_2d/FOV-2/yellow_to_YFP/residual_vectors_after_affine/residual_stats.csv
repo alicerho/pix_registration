@@ -1,0 +1,2 @@
+num_pairs,mean_residual_px,median_residual_px,p90_residual_px,max_residual_px,mean_dx,mean_dy,FOV,spectral,camera,mutual_max_dist_px,out_dir
+19,1.2082111051346427,1.3220393497841227,1.9759272477928969,2.4250715160850347,-0.8002714082610968,-0.18731845567281175,2,yellow,YFP,30.0,outputs_2d/FOV-2/yellow_to_YFP/residual_vectors_after_affine

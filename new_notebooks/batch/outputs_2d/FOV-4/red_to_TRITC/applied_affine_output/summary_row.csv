@@ -1,0 +1,2 @@
+FOV,spectral,camera,affine_path,out_dir,corr_norm_intensity
+4,red,TRITC,outputs_2d/FOV-4/red_to_TRITC/mask_affine_mutualNN_ransac/affine_matrix_3x3.txt,outputs_2d/FOV-4/red_to_TRITC/applied_affine_output,0.008249479013091976

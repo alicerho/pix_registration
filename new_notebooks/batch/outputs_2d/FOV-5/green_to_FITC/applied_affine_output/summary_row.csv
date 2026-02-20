@@ -1,0 +1,2 @@
+FOV,spectral,camera,affine_path,out_dir,corr_norm_intensity
+5,green,FITC,outputs_2d/FOV-5/green_to_FITC/mask_affine_mutualNN_ransac/affine_matrix_3x3.txt,outputs_2d/FOV-5/green_to_FITC/applied_affine_output,0.21081516094797798

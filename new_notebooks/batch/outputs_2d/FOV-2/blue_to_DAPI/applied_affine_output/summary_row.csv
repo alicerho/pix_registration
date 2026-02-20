@@ -1,0 +1,2 @@
+FOV,spectral,camera,affine_path,out_dir,corr_norm_intensity
+2,blue,DAPI,outputs_2d/FOV-2/blue_to_DAPI/mask_affine_mutualNN_ransac/affine_matrix_3x3.txt,outputs_2d/FOV-2/blue_to_DAPI/applied_affine_output,0.1271366466312617

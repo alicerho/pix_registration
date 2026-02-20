@@ -1,0 +1,2 @@
+FOV,spectral,camera,affine_path,out_dir,corr_norm_intensity
+5,yellow,YFP,outputs_2d/FOV-5/yellow_to_YFP/mask_affine_mutualNN_ransac/affine_matrix_3x3.txt,outputs_2d/FOV-5/yellow_to_YFP/applied_affine_output,0.19342238557279415

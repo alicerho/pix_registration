@@ -1,0 +1,2 @@
+num_pairs,mean_residual_px,median_residual_px,p90_residual_px,max_residual_px,mean_dx,mean_dy,FOV,spectral,camera,mutual_max_dist_px,out_dir
+29,3.63310464527478,3.322680053970296,7.748915451694531,9.190384402296944,-1.0986336009024296,-2.090162091082692,5,blue,DAPI,30.0,outputs_2d/FOV-5/blue_to_DAPI/residual_vectors_after_affine

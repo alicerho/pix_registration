@@ -1,0 +1,2 @@
+num_pairs,mean_residual_px,median_residual_px,p90_residual_px,max_residual_px,mean_dx,mean_dy,FOV,spectral,camera,mutual_max_dist_px,out_dir
+38,0.9867758240192104,0.980866460755103,1.6756330417017689,1.9076505799523815,-0.3332000511539866,-0.2538312033251316,5,green,FITC,30.0,outputs_2d/FOV-5/green_to_FITC/residual_vectors_after_affine
