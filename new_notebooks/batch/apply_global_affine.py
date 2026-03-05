@@ -140,11 +140,23 @@ def main():
         save_tif(OUT / f"{prefix}_spectral-px.tif", px_w)
         save_tif(OUT / f"{prefix}_spectral-vo.tif", vo_w)
 
-        # overlay
-        plt.imshow(overlay_rgb(cam_cropped, px_w))
-        plt.axis("off")
-        plt.title("Red=Camera (512×512 center), Green=Spectral")
-        plt.savefig(OUT / f"{prefix}_overlay.png", bbox_inches="tight", dpi=200)
+        # ---------- visualizations ----------
+        
+        # BEFORE/AFTER overlay comparison
+        fig, axes = plt.subplots(1, 2, figsize=(12, 6))
+        
+        # BEFORE: Camera vs raw spectral (misaligned)
+        axes[0].imshow(overlay_rgb(cam_cropped, px))
+        axes[0].set_title("BEFORE Registration\nRed=Camera, Green=Spectral (misaligned)")
+        axes[0].axis("off")
+        
+        # AFTER: Camera vs warped spectral (aligned)
+        axes[1].imshow(overlay_rgb(cam_cropped, px_w))
+        axes[1].set_title("AFTER Registration\nRed=Camera, Green=Spectral (aligned)")
+        axes[1].axis("off")
+        
+        plt.tight_layout()
+        plt.savefig(OUT / f"{prefix}_overlay_before_after.png", bbox_inches="tight", dpi=200)
         plt.close()
 
         # side by side
@@ -168,7 +180,7 @@ def main():
         plt.savefig(OUT / f"{prefix}_checkerboard.png", dpi=200)
         plt.close()
 
-        print(f"  Saved registered images (512×512)")
+        print(f"  Saved registered images and visualizations (512×512)")
 
 
 if __name__ == "__main__":
