@@ -1,0 +1,19 @@
+camera: ../../data/Dataset_300Fovs/RAW/EYrainbow_slide-19_field-2_camera-FITC.nd2
+spectral: ../../data/Dataset_300Fovs/RAW/EYrainbow_slide-19_field-2_spectral-green.nd2
+
+--- Stage 1: Coarse ---
+coarse_dx: -20.0
+coarse_dy: 2.0
+coarse_score: 5243000320.0
+
+--- Stage 2: Fine ---
+fine_dx: -19.0
+fine_dy: 1.0
+fine_score: 5292000256.0
+
+--- Stage 3: Nelder-Mead (final) ---
+best_dx: -19.0000
+best_dy: 1.0000
+best_score: 5292000256
+converged: True
+iterations: 43

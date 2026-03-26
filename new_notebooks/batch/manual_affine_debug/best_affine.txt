@@ -1,0 +1,23 @@
+camera:   ../../data/Dataset_300Fovs/RAW/EYrainbow_slide-19_field-2_camera-FITC.nd2
+spectral: ../../data/Dataset_300Fovs/RAW/EYrainbow_slide-19_field-2_spectral-green.nd2
+
+=== Final affine parameters ===
+dx:        -21.6526  pixels
+dy:        3.2794  pixels
+rotation:  -2.61952  degrees
+scale_x:   1.015992
+scale_y:   0.978647
+shear:     0.03107  degrees
+score:     6180107264
+
+=== Affine matrix (3x3, forward) ===
+  +1.01492984  +0.04527792  -37.06577847
+  -0.04643424  +0.97759951  +20.90113409
+  +0.00000000  +0.00000000  +1.00000000
+
+=== DE stage ===
+converged: True  iters: 92
+score:     6180102656
+
+=== Nelder-Mead stage ===
+converged: True  iters: 216

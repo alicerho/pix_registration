@@ -427,7 +427,7 @@ def main():
             plt.tight_layout()
             plt.savefig(OUT / f"{prefix}_side_by_side_{name}.png", dpi=200)
             plt.close()
-
+  
             # checkerboard
             plt.imshow(checkerboard(cam_cropped, img_w), cmap="gray")
             plt.axis("off")
