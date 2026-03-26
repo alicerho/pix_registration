@@ -1,0 +1,15 @@
+camera:   ../../data/Dataset_300Fovs/RAW/EYrainbow_slide-9_field-6_camera-DAPI.nd2
+spectral: ../../data/Dataset_300Fovs/unmixed/unmixed_EYrainbow_slide-9_field-6_spectral-blue.nd2
+
+dx:       -29.0862
+dy:       -13.5950
+rotation: -2.501059 deg
+scale_x:  1.028573
+scale_y:  1.032118
+shear:    -0.262237 deg
+score:    2934162432
+
+Affine matrix:
++1.02759336 +0.04033619 -46.47621377
+-0.04488472 +1.03134019 -10.12762785
++0.00000000 +0.00000000 +1.00000000

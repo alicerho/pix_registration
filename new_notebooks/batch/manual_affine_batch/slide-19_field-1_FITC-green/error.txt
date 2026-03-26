@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/Users/shinyeongrho/MukherjiLab/registration/pix_registration/new_notebooks/batch/batch_manual_guess_affine.py", line 350, in main
+    print(f"  OK  {fmt_params(result[k] for k in ['dx','dy'])}  "
+  File "/Users/shinyeongrho/MukherjiLab/registration/pix_registration/new_notebooks/batch/batch_manual_guess_affine.py", line 151, in fmt_params
+    dx, dy, rot, sx, sy, sh = params
+ValueError: not enough values to unpack (expected 6, got 2)
