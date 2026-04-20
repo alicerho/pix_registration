@@ -1,0 +1,5 @@
+mode,camera,n_total,n_inliers,n_outliers,dx,dy,rotation_deg,scale_x,scale_y,shear_deg,matrix_file
+blue,DAPI,9,4,5,-25.506125,0.6905999999999999,-2.5541095,1.0234095,0.98506275,-0.8122272500000001,batch_affine_results/global_affine_from_inliers/blue_to_DAPI_global_affine.txt
+green,FITC,7,3,4,-20.65703333333333,3.4899,-2.385973,1.0082093333333335,0.9833470000000001,0.056152333333333325,batch_affine_results/global_affine_from_inliers/green_to_FITC_global_affine.txt
+yellow,YFP,7,5,2,-26.62118,6.03654,-2.3765037999999996,1.0117052000000002,0.9853335999999999,0.18413300000000002,batch_affine_results/global_affine_from_inliers/yellow_to_YFP_global_affine.txt
+red,TRITC,7,6,1,-16.526283333333335,-1.4519499999999999,-2.475804166666667,1.009069,0.9833828333333332,-0.0574165,batch_affine_results/global_affine_from_inliers/red_to_TRITC_global_affine.txt

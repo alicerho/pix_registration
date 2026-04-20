@@ -1,0 +1,9 @@
+camera:   ../../data/Dataset_300Fovs/RAW/EYrainbow_slide-19_field-5_camera-DAPI.nd2
+spectral: ../../data/Dataset_300Fovs/unmixed/unmixed_EYrainbow_slide-19_field-5_spectral-blue.nd2
+mode:     blue
+matrix:   batch_affine_results/global_affine_from_inliers/blue_to_DAPI_global_affine.txt
+
+Applied global affine matrix:
++1.02239283 +0.02940276 -38.76579501
+-0.04560605 +0.98473073 +16.27468300
++0.00000000 +0.00000000 +1.00000000

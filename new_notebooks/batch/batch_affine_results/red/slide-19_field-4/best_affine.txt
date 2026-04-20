@@ -1,0 +1,15 @@
+camera:   ../../data/Dataset_300Fovs/RAW/EYrainbow_slide-19_field-4_camera-TRITC.nd2
+spectral: ../../data/Dataset_300Fovs/unmixed/unmixed_EYrainbow_slide-19_field-4_spectral-red.nd2
+
+dx:       -16.1112
+dy:       -1.9460
+rotation: -2.372653 deg
+scale_x:  1.003391
+scale_y:  0.986006
+shear:    -0.002473 deg
+score:    4936208896
+
+Affine matrix:
++1.00253033 +0.04077619 -27.19768177
+-0.04153914 +0.98516291 +12.48627552
++0.00000000 +0.00000000 +1.00000000

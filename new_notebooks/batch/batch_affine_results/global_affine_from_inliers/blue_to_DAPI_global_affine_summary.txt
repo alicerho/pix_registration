@@ -1,0 +1,18 @@
+mode: blue
+camera: DAPI
+n_total: 9
+n_inliers: 4
+n_outliers: 5
+
+Averaged inlier parameters:
+dx: -25.506125
+dy: 0.690600
+rotation_deg: -2.554110
+scale_x: 1.023410
+scale_y: 0.985063
+shear_deg: -0.812227
+
+Affine matrix:
++1.0223928270 +0.0294027590 -38.7657950076
+-0.0456060521 +0.9847307279 +16.2746830003
++0.0000000000 +0.0000000000 +1.0000000000

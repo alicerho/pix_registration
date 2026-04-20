@@ -1,0 +1,9 @@
+camera:   ../../data/Dataset_300Fovs/RAW/EYrainbow_slide-19_field-6_camera-TRITC.nd2
+spectral: ../../data/Dataset_300Fovs/unmixed/unmixed_EYrainbow_slide-19_field-6_spectral-red.nd2
+mode:     red
+matrix:   batch_affine_results/global_affine_from_inliers/red_to_TRITC_global_affine.txt
+
+Applied global affine matrix:
++1.00812709 +0.04146942 -29.22298848
+-0.04358925 +0.98250858 +14.18470100
++0.00000000 +0.00000000 +1.00000000

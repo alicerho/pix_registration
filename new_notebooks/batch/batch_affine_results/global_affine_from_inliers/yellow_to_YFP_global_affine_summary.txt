@@ -1,0 +1,18 @@
+mode: yellow
+camera: YFP
+n_total: 7
+n_inliers: 5
+n_outliers: 2
+
+Averaged inlier parameters:
+dx: -26.621180
+dy: 6.036540
+rotation_deg: -2.376504
+scale_x: 1.011705
+scale_y: 0.985334
+shear_deg: 0.184133
+
+Affine matrix:
++1.0108350513 +0.0441063273 -40.6861729050
+-0.0419512908 +0.9843513125 +20.7821344385
++0.0000000000 +0.0000000000 +1.0000000000

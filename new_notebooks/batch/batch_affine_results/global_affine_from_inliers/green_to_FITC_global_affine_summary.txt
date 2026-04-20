@@ -1,0 +1,18 @@
+mode: green
+camera: FITC
+n_total: 7
+n_inliers: 3
+n_outliers: 4
+
+Averaged inlier parameters:
+dx: -20.657033
+dy: 3.489900
+rotation_deg: -2.385973
+scale_x: 1.008209
+scale_y: 0.983347
+shear_deg: 0.056152
+
+Affine matrix:
++1.0073352683 +0.0419250003 -33.2676621004
+-0.0419728131 +0.9824533541 +18.7268814799
++0.0000000000 +0.0000000000 +1.0000000000

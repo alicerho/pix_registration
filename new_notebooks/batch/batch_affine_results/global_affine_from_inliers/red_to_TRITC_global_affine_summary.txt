@@ -1,0 +1,18 @@
+mode: red
+camera: TRITC
+n_total: 7
+n_inliers: 6
+n_outliers: 1
+
+Averaged inlier parameters:
+dx: -16.526283
+dy: -1.451950
+rotation_deg: -2.475804
+scale_x: 1.009069
+scale_y: 0.983383
+shear_deg: -0.057417
+
+Affine matrix:
++1.0081270874 +0.0414694171 -29.2229884805
+-0.0435892465 +0.9825085785 +14.1847010007
++0.0000000000 +0.0000000000 +1.0000000000

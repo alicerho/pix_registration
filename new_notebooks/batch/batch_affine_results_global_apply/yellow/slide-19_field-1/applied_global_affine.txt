@@ -1,0 +1,9 @@
+camera:   ../../data/Dataset_300Fovs/RAW/EYrainbow_slide-19_field-1_camera-YFP.nd2
+spectral: ../../data/Dataset_300Fovs/RAW/EYrainbow_slide-19_field-1_spectral-yellow.nd2
+mode:     yellow
+matrix:   batch_affine_results/global_affine_from_inliers/yellow_to_YFP_global_affine.txt
+
+Applied global affine matrix:
++1.01083505 +0.04410633 -40.68617290
+-0.04195129 +0.98435131 +20.78213444
++0.00000000 +0.00000000 +1.00000000
