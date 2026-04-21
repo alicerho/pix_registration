@@ -1,0 +1,9 @@
+camera:   ../../data/Dataset_300Fovs/RAW/EYrainbow_slide-19_field-5_camera-FITC.nd2
+spectral: ../../data/Dataset_300Fovs/RAW/EYrainbow_slide-19_field-5_spectral-green.nd2
+mode:     green
+matrix:   batch_affine_results/global_affine_from_inliers/green_to_FITC_global_affine.txt
+
+Applied global affine matrix:
++1.00733527 +0.04192500 -33.26766210
+-0.04197281 +0.98245335 +18.72688148
++0.00000000 +0.00000000 +1.00000000

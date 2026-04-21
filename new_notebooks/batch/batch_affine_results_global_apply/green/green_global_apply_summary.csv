@@ -1,0 +1,8 @@
+slide,field,mode,camera,spectral,global_affine_file
+19,1,green,../../data/Dataset_300Fovs/RAW/EYrainbow_slide-19_field-1_camera-FITC.nd2,../../data/Dataset_300Fovs/RAW/EYrainbow_slide-19_field-1_spectral-green.nd2,batch_affine_results/global_affine_from_inliers/green_to_FITC_global_affine.txt
+19,2,green,../../data/Dataset_300Fovs/RAW/EYrainbow_slide-19_field-2_camera-FITC.nd2,../../data/Dataset_300Fovs/RAW/EYrainbow_slide-19_field-2_spectral-green.nd2,batch_affine_results/global_affine_from_inliers/green_to_FITC_global_affine.txt
+19,3,green,../../data/Dataset_300Fovs/RAW/EYrainbow_slide-19_field-3_camera-FITC.nd2,../../data/Dataset_300Fovs/RAW/EYrainbow_slide-19_field-3_spectral-green.nd2,batch_affine_results/global_affine_from_inliers/green_to_FITC_global_affine.txt
+19,4,green,../../data/Dataset_300Fovs/RAW/EYrainbow_slide-19_field-4_camera-FITC.nd2,../../data/Dataset_300Fovs/RAW/EYrainbow_slide-19_field-4_spectral-green.nd2,batch_affine_results/global_affine_from_inliers/green_to_FITC_global_affine.txt
+19,5,green,../../data/Dataset_300Fovs/RAW/EYrainbow_slide-19_field-5_camera-FITC.nd2,../../data/Dataset_300Fovs/RAW/EYrainbow_slide-19_field-5_spectral-green.nd2,batch_affine_results/global_affine_from_inliers/green_to_FITC_global_affine.txt
+19,6,green,../../data/Dataset_300Fovs/RAW/EYrainbow_slide-19_field-6_camera-FITC.nd2,../../data/Dataset_300Fovs/RAW/EYrainbow_slide-19_field-6_spectral-green.nd2,batch_affine_results/global_affine_from_inliers/green_to_FITC_global_affine.txt
+21,14,green,../../data/Dataset_300Fovs/RAW/EYrainbow_slide-21_field-14_camera-FITC.nd2,../../data/Dataset_300Fovs/RAW/EYrainbow_slide-21_field-14_spectral-green.nd2,batch_affine_results/global_affine_from_inliers/green_to_FITC_global_affine.txt
