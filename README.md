@@ -1,5 +1,160 @@
 # Pixel Registration Between Spectral Detector and Camera
 
+## Active RF Pipeline
+
+The active Random Forest/modeling pipeline uses the 300-FOV yeast rainbow dataset,
+not the older bead datasets described below. The bead data and 2022 registration
+notes are legacy/earlier registration work.
+
+The active goal is to predict six registered spectral/organelle channels from four
+widefield camera channels:
+
+- Inputs: `DAPI`, `FITC`, `TRITC`, `YFP`
+- Outputs: `ER`, `GO`, `PX`, `VO`, `MT`, `LD`
+
+### 1. Raw Camera Inputs
+
+Camera images are used both for registration and as model inputs:
+
+```text
+data/Dataset_300Fovs/RAW/EYrainbow_slide-<slide>_field-<field>_camera-DAPI.nd2
+data/Dataset_300Fovs/RAW/EYrainbow_slide-<slide>_field-<field>_camera-FITC.nd2
+data/Dataset_300Fovs/RAW/EYrainbow_slide-<slide>_field-<field>_camera-TRITC.nd2
+data/Dataset_300Fovs/RAW/EYrainbow_slide-<slide>_field-<field>_camera-YFP.nd2
+```
+
+### 2. Raw/Unmixed Spectral Targets
+
+Spectral images are registered to their matching camera channels and used as model
+targets:
+
+```text
+data/Dataset_300Fovs/RAW/EYrainbow_slide-<slide>_field-<field>_spectral-green.nd2
+  -> ER, registered to FITC
+
+data/Dataset_300Fovs/RAW/EYrainbow_slide-<slide>_field-<field>_spectral-yellow.nd2
+  -> GO, registered to YFP
+
+data/Dataset_300Fovs/unmixed/unmixed_EYrainbow_slide-<slide>_field-<field>_spectral-blue.nd2
+  -> PX/VO, registered to DAPI
+
+data/Dataset_300Fovs/unmixed/unmixed_EYrainbow_slide-<slide>_field-<field>_spectral-red.nd2
+  -> MT/LD, registered to TRITC
+```
+
+### 3. Affine Matrix Generation
+
+Run from `new_notebooks/batch`:
+
+```bash
+cd new_notebooks/batch
+```
+
+Estimate per-FOV affine transforms between each spectral color and its matching
+camera channel:
+
+```bash
+python batch_manual_guess_affine.py
+```
+
+Extract the final 3x3 affine matrices:
+
+```bash
+python get_all_transforms.py
+```
+
+Matrix output:
+
+```text
+new_notebooks/batch/batch_affine_results/all_300FOV_affine_matrices/
+```
+
+### 4. Dataset Generation
+
+Run from `new_notebooks/batch`:
+
+```bash
+cd new_notebooks/batch
+```
+
+Check which FOVs have all required camera and spectral files:
+
+```bash
+python file_check_table.py
+```
+
+Output:
+
+```text
+new_notebooks/batch/fov_file_presence_table.csv
+```
+
+Build the correlated-pixel dataset. This script loads camera images, loads spectral
+images, applies the corresponding affine matrices, and writes the selected pixel
+table:
+
+```bash
+python build_correlated_pixel_database.py
+```
+
+Output:
+
+```text
+new_notebooks/batch/correlated_pixel_database/top_correlated_pixels.csv
+```
+
+### 5. Training And Evaluation
+
+Run from `new_notebooks/batch`:
+
+```bash
+cd new_notebooks/batch
+```
+
+Train the baseline all-camera Random Forest model:
+
+```bash
+python Train/train_baseline_model.py
+```
+
+Train the single-camera baseline models:
+
+```bash
+python Train/train_single_camera_baselines.py
+```
+
+Generate full-FOV prediction figures:
+
+```bash
+python Train/predict_full_fov_with_baseline.py
+```
+
+Generate held-out pixel prediction QC figures:
+
+```bash
+python Train/visualize_baseline_predictions.py
+```
+
+Check full-FOV prediction correlations:
+
+```bash
+python Train/check_prediction_correlations.py
+```
+
+Check actual registered spectral-vs-camera correlations:
+
+```bash
+python Train/actual_spectral_vs_camera_correlations.py
+```
+
+Primary outputs:
+
+```text
+new_notebooks/batch/Train/models/
+new_notebooks/batch/Train/results/
+new_notebooks/batch/Train/figures/
+```
+
 ## Raw Data 
 
 - `2022-11-08_beads_equal_pixel_size`
